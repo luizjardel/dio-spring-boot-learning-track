@@ -1,85 +1,235 @@
-# DIO Spring Boot - Final Project 05: Spring AI (budgeting)
+# 💰 API Inteligente para Controle Financeiro com Spring AI e Ollama
 
-## Introduction
+Projeto desenvolvido durante o Bootcamp **Java + Spring Boot** da **DIO (Digital Innovation One)**.
 
-This final module applies Spring AI in a budgeting API while preserving the same layered architecture used across the track.
+O objetivo deste projeto é criar uma API para gerenciamento de transações financeiras utilizando **Spring Boot**, **Spring AI** e um **modelo de linguagem (LLM)** para permitir a interação em linguagem natural.
 
-The goal is to integrate AI capabilities without bypassing domain and use case boundaries.
+---
 
-## Code Context
+# 📖 Sobre o projeto
 
-The project processes voice commands to create and query financial transactions.
+A aplicação permite cadastrar e consultar transações financeiras através de endpoints REST e também conversar com a IA para executar essas operações utilizando comandos em linguagem natural.
 
-Primary flow:
+Toda a arquitetura do projeto foi mantida seguindo os princípios apresentados durante o módulo, separando responsabilidades entre:
 
-1. Client uploads an audio file.
-2. Audio is transcribed into text.
-3. The model selects an application tool/use case.
-4. The use case persists or queries transaction data.
-5. The final response is converted to audio.
+- Domain
+- Application (Use Cases)
+- Infrastructure
+- HTTP Controllers
 
-## Project Structure
+Essa organização facilita a manutenção, escalabilidade e reutilização do código.
 
-- `src/main/java/dio/budgeting/domain`
-  - Domain model and repository contract.
-- `src/main/java/dio/budgeting/application`
-  - Use cases used by both REST and AI tool calling.
-- `src/main/java/dio/budgeting/infrastructure`
-  - HTTP adapters, JPA adapters, and integration glue.
+---
 
-## Module-Specific Topics
+# 🚀 Tecnologias utilizadas
 
-### Speech-to-text
+- Java 25
+- Spring Boot
+- Spring AI
+- Ollama
+- H2 Database
+- Spring Data JPA
+- Gradle
+- Lombok
 
-- Uses `TranscriptionModel` for audio transcription.
-- Model settings are configured in `application.properties`.
+---
 
-### Tool calling
+# 🤖 Inteligência Artificial
 
-- `ChatClient` registers use-case tools.
-- `@Tool` methods expose business capabilities to the model.
+A integração com IA foi realizada utilizando o **Spring AI** juntamente com o **Ollama**, permitindo executar modelos de linguagem localmente.
 
-### Text-to-speech
+O endpoint `/transactions/chat` recebe uma mensagem em linguagem natural e utiliza o modelo configurado para interpretar o comando e acionar automaticamente os casos de uso da aplicação.
 
-- `TextToSpeechModel` produces MP3 output from final text.
-- AI endpoint returns generated audio.
+Exemplo:
 
-## Spring AI Documentation
-
-- Spring AI Reference: https://docs.spring.io/spring-ai/reference/index.html
-- ChatModel API: https://docs.spring.io/spring-ai/reference/api/chatmodel.html
-- ChatClient API: https://docs.spring.io/spring-ai/reference/api/chatclient.html
-- Tools API: https://docs.spring.io/spring-ai/reference/api/tools.html
-- Audio Transcriptions API: https://docs.spring.io/spring-ai/reference/api/audio/transcriptions.html
-- Audio Speech API: https://docs.spring.io/spring-ai/reference/api/audio/speech.html
-
-## Shared Architecture References
-
-Common architecture concepts are documented in the root README:
-
-- [DDD layers](../README.md#ddd-layered-architecture)
-- [Class vs record](../README.md#java-class-vs-java-record-in-domain-modeling)
-- [Strong typed identifiers](../README.md#strong-typed-identifiers)
-- [Repository pattern](../README.md#repository-pattern)
-- [Use cases and Clean Architecture](../README.md#use-cases-and-clean-architecture)
-- [Docker Compose support](../README.md#docker-compose-support-in-development)
-
-## How to Run
-
-Set your OpenAI API key:
-
-```bash
-export OPENAI_API_KEY="your_api_key_here"
+```
+Cadastre uma despesa de R$ 120,00 com alimentação.
 ```
 
-Run the application and tests:
+ou
+
+```
+Liste todas as despesas da categoria MORADIA.
+```
+
+---
+
+# 🔄 Alterações realizadas
+
+Durante o desenvolvimento do projeto optei por realizar algumas adaptações em relação à implementação apresentada nas aulas.
+
+A versão original utilizava os serviços da OpenAI para reconhecimento e síntese de voz.
+
+Como essas funcionalidades dependem de créditos na API da OpenAI, adaptei o projeto para utilizar o **Ollama**, permitindo executar o modelo de IA localmente, sem custos.
+
+As principais modificações foram:
+
+- substituição da OpenAI pelo Ollama;
+- configuração do Spring AI para execução local;
+- manutenção da arquitetura original do projeto;
+- preservação do endpoint de chat utilizando IA local;
+- adaptação do endpoint responsável pela transcrição de áudio.
+
+O endpoint `/transactions/ai` permanece disponível apenas como demonstração da funcionalidade prevista originalmente, retornando uma mensagem informativa.
+
+Essa adaptação permitiu concluir o desafio mantendo a proposta do projeto e possibilitando sua execução sem depender de serviços pagos.
+
+---
+
+# 📂 Estrutura do projeto
+
+```
+src
+ ├── application
+ │     ├── Use Cases
+ │
+ ├── domain
+ │     ├── Entidades
+ │     ├── Repositórios
+ │
+ ├── infrastructure
+ │     ├── persistence
+ │     ├── http
+ │     └── configuração
+ │
+ └── resources
+       ├── application.properties
+       └── prompts
+```
+
+---
+
+# 📌 Endpoints
+
+## Criar transação
+
+```
+POST /transactions
+```
+
+Exemplo:
+
+```json
+{
+  "description": "Mercado",
+  "value": 120.50,
+  "category": "FOOD"
+}
+```
+
+---
+
+## Listar por categoria
+
+```
+GET /transactions/{category}
+```
+
+Exemplo:
+
+```
+GET /transactions/FOOD
+```
+
+---
+
+## Chat com IA
+
+```
+POST /transactions/chat
+```
+
+Exemplo de requisição:
+
+```
+Cadastre uma despesa de R$ 85,00 de transporte.
+```
+
+---
+
+## Transcrição de áudio
+
+```
+POST /transactions/ai
+```
+
+Nesta adaptação o endpoint retorna uma mensagem informativa, pois a implementação original dependia dos serviços de reconhecimento de voz da OpenAI.
+
+---
+
+# ▶️ Como executar
+
+## 1. Clone o repositório
+
+```bash
+git clone https://github.com/SEU-USUARIO/dio-spring-boot-learning-track.git
+```
+
+---
+
+## 2. Acesse o módulo
+
+```bash
+cd 05-spring-ai/budgeting
+```
+
+---
+
+## 3. Execute o Ollama
+
+Exemplo utilizando o modelo Gemma:
+
+```bash
+ollama run gemma3
+```
+
+ou outro modelo compatível configurado na aplicação.
+
+---
+
+## 4. Execute o projeto
 
 ```bash
 ./gradlew bootRun
-./gradlew test
 ```
 
-## Notes
+ou
 
-- Educational final project focused on AI plus architectural discipline.
-- External provider integration tests may require active credentials.
+```bash
+gradlew bootRun
+```
+
+---
+
+# 💡 Aprendizados
+
+Durante este projeto foi possível praticar conceitos importantes como:
+
+- Arquitetura em camadas;
+- Spring Boot;
+- Spring AI;
+- Integração com LLMs;
+- Injeção de Dependência;
+- Spring Data JPA;
+- REST APIs;
+- Engenharia de Prompts;
+- Ferramentas (Tools) do Spring AI.
+
+Além disso, o projeto proporcionou experiência na adaptação de soluções para diferentes provedores de IA, mantendo a mesma arquitetura da aplicação.
+
+---
+
+# 📝 Observações
+
+Este projeto foi desenvolvido com fins educacionais durante o Bootcamp da DIO.
+
+A estrutura principal segue a proposta apresentada no curso, porém foram realizadas adaptações para permitir sua execução utilizando modelos locais através do Ollama, eliminando a dependência de créditos da OpenAI.
+
+---
+
+# 👨‍💻 Autor
+
+**Luiz Jardel do Nascimento**
+
+- GitHub: https://github.com/luizjardel
+- LinkedIn: https://www.linkedin.com/in/luiz-jardel/
